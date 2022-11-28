@@ -23,3 +23,4 @@ impl<T> DecodeError<T> for NameError {
         "NameError"
     }
 }
+

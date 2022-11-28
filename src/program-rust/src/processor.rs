@@ -2,33 +2,42 @@ use {
     crate::{
         instruction::NameInstruction
     },
-    borsh::BorshDeserialize,
+    borsh::{BorshDeserialize, BorshSerialize},
     solana_program::{
         account_info::{next_account_info, AccountInfo},
         entrypoint::ProgramResult,
         msg,
-        program::{invoke, invoke_signed},
         program_error::ProgramError,
-        program_pack::Pack,
         pubkey::Pubkey,
-        system_instruction,
     },
 };
+use crate::state::GreetingAccount;
+//use crate::error::NameError;
 pub struct Processor {}
 
+
+
 impl Processor {
-    pub fn process_greeting(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    
+    pub fn process_greeting(program_id: &Pubkey,
+                            accounts: &[AccountInfo],// Public key of the account the hello world program was loaded into
+    ) -> ProgramResult {
         // Iterating accounts is safer than indexing
         let accounts_iter = &mut accounts.iter();
-
-        // Get the account to say hello to
+        let (pda,_)= Pubkey::find_program_address(&[b"admin_account"], program_id);
         let account = next_account_info(accounts_iter)?;
 
-        // The account must be owned by the program in order to modify its data
-        if account.owner != program_id {
-            msg!("Greeted account does not have the correct program id");
-            return Err(ProgramError::IncorrectProgramId);
+
+        if account.key != &pda {
+            return  Err(ProgramError::MissingRequiredSignature);
         }
+        let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
+        greeting_account.counter += 1;
+        greeting_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
+
+        msg!("Greeted {} time(s)!", greeting_account.counter);
+
+
         Ok(())
     }
     pub fn process_instruction(
