@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-
 import {
   Keypair,
   Connection,
@@ -161,13 +160,25 @@ export async function checkProgram(): Promise<void> {
   console.log(`Using program ${programId.toBase58()}`);
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
-  const GREETING_SEED = 'hello';
+  const GREETING_SEED = "admin_account";
   greetedPubkey = await PublicKey.createWithSeed(
     payer.publicKey,
     GREETING_SEED,
     programId,
   );
+  await (async () => {
+    const programId = new PublicKey(
+        "FiWtd4Z6S3JhLae8QY7izqgHH9RcQWKyHwPoH39THqRx"
+    );
 
+    const [pda, bump] = await PublicKey.findProgramAddress(
+        [Buffer.from("admin_account")],
+        programId
+    );
+    console.log(`bump: ${bump}, pubkey: ${pda.toBase58()}`);
+    // you will find the result is different from `createProgramAddress`.
+    // It is expected because the real seed we used to calculate is ["test" + bump]
+  })();
   // Check if the greeting account has already been created
   const greetedAccount = await connection.getAccountInfo(greetedPubkey);
   if (greetedAccount === null) {
