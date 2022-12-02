@@ -17,7 +17,7 @@ borsh = "0.9.3"
 borsh-derive = "0.9.1"
 solana-program = "~1.10.35"
 num-traits = "0.2"
-thiserror = "1.0.29"
+thiserror = "1.0.37"
 num-derive = "0.3.3"
 
 
