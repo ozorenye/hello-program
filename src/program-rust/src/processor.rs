@@ -22,6 +22,7 @@ impl Processor {
     pub fn process_greeting(program_id: &Pubkey,
                             accounts: &[AccountInfo],// Public key of the account the hello world program was loaded into
     ) -> ProgramResult {
+        println!("process_greeting");
         // Iterating accounts is safer than indexing
         let accounts_iter = &mut accounts.iter();
         let (pda,_)= Pubkey::find_program_address(&[b"admin_account"], program_id);

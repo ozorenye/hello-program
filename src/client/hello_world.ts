@@ -160,12 +160,14 @@ export async function checkProgram(): Promise<void> {
   console.log(`Using program ${programId.toBase58()}`);
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
-  const GREETING_SEED = "admin_account";
-  greetedPubkey = await PublicKey.createWithSeed(
-    payer.publicKey,
-    GREETING_SEED,
+  const GREETING_SEED = 'admin_account';
+  [greetedPubkey] = await PublicKey.findProgramAddress(
+    [Buffer.from("admin_account")],
     programId,
   );
+
+  console.log('greetedPubkey');
+  
   await (async () => {
     const programId = new PublicKey(
         "FiWtd4Z6S3JhLae8QY7izqgHH9RcQWKyHwPoH39THqRx"
@@ -190,7 +192,11 @@ export async function checkProgram(): Promise<void> {
     const lamports = await connection.getMinimumBalanceForRentExemption(
       GREETING_SIZE,
     );
-
+    console.log(
+      'Minimum Balance for ',
+      greetedPubkey.toBase58(),
+      'to say hello to',
+    );
     const transaction = new Transaction().add(
       SystemProgram.createAccountWithSeed({
         fromPubkey: payer.publicKey,
