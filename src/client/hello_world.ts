@@ -161,8 +161,9 @@ export async function checkProgram(): Promise<void> {
 
   // Derive the address (public key) of a greeting account from the program so that it's easy to find later.
   const GREETING_SEED = 'admin_account';
-  [greetedPubkey] = await PublicKey.findProgramAddress(
-    [Buffer.from("admin_account")],
+  greetedPubkey = await PublicKey.createWithSeed(
+    payer.publicKey,
+    GREETING_SEED,
     programId,
   );
 
@@ -197,6 +198,14 @@ export async function checkProgram(): Promise<void> {
       greetedPubkey.toBase58(),
       'to say hello to',
     );
+    console.log({fromPubkey: payer.publicKey,
+      basePubkey: payer.publicKey.toBase58(),
+      seed: GREETING_SEED,
+      newAccountPubkey: greetedPubkey.toBase58(),
+      lamports,
+      space: GREETING_SIZE,
+      programId,});
+    
     const transaction = new Transaction().add(
       SystemProgram.createAccountWithSeed({
         fromPubkey: payer.publicKey,

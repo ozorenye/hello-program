@@ -22,16 +22,16 @@ impl Processor {
     pub fn process_greeting(program_id: &Pubkey,
                             accounts: &[AccountInfo],// Public key of the account the hello world program was loaded into
     ) -> ProgramResult {
-        println!("process_greeting");
+        msg!("process_greeting");
         // Iterating accounts is safer than indexing
         let accounts_iter = &mut accounts.iter();
-        let (pda,_)= Pubkey::find_program_address(&[b"admin_account"], program_id);
         let account = next_account_info(accounts_iter)?;
+        let pda = Pubkey::create_with_seed(account.key,&"admin_account", program_id).unwrap();
+        msg!("created pda");
+        msg!("pda {:?} account {:?} ",pda, account.key);
 
+    
 
-        if account.key != &pda {
-            return  Err(ProgramError::MissingRequiredSignature);
-        }
         let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
         greeting_account.counter += 1;
         greeting_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
