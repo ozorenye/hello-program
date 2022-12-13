@@ -7,8 +7,8 @@ use {
         account_info::{next_account_info, AccountInfo},
         entrypoint::ProgramResult,
         msg,
-        program_error::ProgramError,
         pubkey::Pubkey,
+        program_error::ProgramError,
     },
 };
 use crate::state::GreetingAccount;
@@ -30,7 +30,10 @@ impl Processor {
         msg!("created pda");
         msg!("pda {:?} account {:?} ",pda, account.key);
 
-    
+        if account.owner != program_id {
+            msg!("Greeted account does not have the correct program id");
+            return Err(ProgramError::IncorrectProgramId);
+        }
 
         let mut greeting_account = GreetingAccount::try_from_slice(&account.data.borrow())?;
         greeting_account.counter += 1;
